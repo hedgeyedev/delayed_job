@@ -9,18 +9,24 @@ class Class
 end
 
 module Delayed
-  class PerformableMethod < Struct.new(:object, :method, :args)
+  class PerformableMethod
     STRING_FORMAT = /^LOAD\;([A-Z][\w\:]+)(?:\;(\w+))?$/
     
     class LoadError < StandardError
     end
 
-    def initialize(object, method, args)
-      raise NoMethodError, "undefined method `#{method}' for #{object.inspect}" unless object.respond_to?(method, true)
+    attr_accessor :object, :method_name, :args
 
-      self.object = dump(object)
-      self.args   = args.map { |a| dump(a) }
-      self.method = method.to_sym
+    def initialize(object, method_name, args)
+      raise NoMethodError, "undefined method `#{method_name}' for #{object.inspect}" unless object.respond_to?(method_name, true)
+
+      if object.respond_to?(:persisted?) && !object.persisted?
+        raise(ArgumentError, "job cannot be created for non-persisted record: #{object.inspect}")
+      end
+
+      self.object       = object
+      self.args         = args
+      self.method_name  = method_name.to_sym
     end
     
     def display_name
@@ -32,7 +38,7 @@ module Delayed
     end
     
     def perform
-      load(object).send(method, *args.map{|a| load(a)})
+      load(object).send(method_name, *args.map{|a| load(a)})
     rescue PerformableMethod::LoadError
       # We cannot do anything about objects that can't be loaded
       true
@@ -60,3 +66,4 @@ module Delayed
     end
   end
 end
+
