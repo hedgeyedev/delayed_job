@@ -31,9 +31,9 @@ module Delayed
     
     def display_name
       if STRING_FORMAT === object
-        "#{$1}#{$2 ? '#' : '.'}#{method}"
+        "#{$1}#{$2 ? '#' : '.'}#{method_name}"
       else
-        "#{object.class}##{method}"
+        "#{object.class}##{method_name}"
       end
     end
     
