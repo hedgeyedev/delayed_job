@@ -49,6 +49,9 @@ module Delayed
     def load(obj)
       if STRING_FORMAT === obj
         $1.constantize.load_for_delayed_job($2)
+      elsif obj.is_a?(Syck::Object)
+        obj.class.constantize
+        YAML.load obj.to_yaml
       else
         obj
       end
