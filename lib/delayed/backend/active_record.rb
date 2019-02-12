@@ -44,6 +44,8 @@ module Delayed
           scope = self.ready_to_run(worker_name, max_run_time)
           scope = scope.scoped(:conditions => ['priority >= ?', Worker.min_priority]) if Worker.min_priority
           scope = scope.scoped(:conditions => ['priority <= ?', Worker.max_priority]) if Worker.max_priority
+          scope = scope.scoped(:conditions => ['queue = ?',        Delayed::Worker.queue_name]) if Delayed::Worker.queue_name
+          scope = scope.scoped(:conditions => ['queue not in (?)', Delayed::Worker.excluded_queue]) if Delayed::Worker.excluded_queue
       
           ::ActiveRecord::Base.silence do
             scope.by_priority.all(:limit => limit)

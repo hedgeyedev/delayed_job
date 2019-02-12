@@ -44,6 +44,16 @@ module Delayed
         opts.on('-m', '--monitor', 'Start monitor process.') do
           @monitor = true
         end
+        
+        opts.on('-q', '--queue=name', 'Queue to process') do |queue|
+          @options[:queue] = queue
+        end
+        
+        opts.on('-Q', '--excluded_queue=name', 'Queue NOT to process') do |queue|
+          @options[:excluded_queue] = queue
+        end
+        
+        
         opts.on('--sleep-delay N', "Amount of time to sleep when no jobs are found") do |n|
           @options[:sleep_delay] = n
         end
